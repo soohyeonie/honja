@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <% if(typeof userID !== 'undefined') { %>
+        <%=userID%>님 반갑습니다.
+        <form action="/users/logout" method="get">
+            <input type="submit" value="로그아웃">
+        </form>
+        <form action="/activate/findtrip" method="get">
+            <input type="submit" value="동행찾기">
+        </form>
+        <form action="/activate/registertrip" method="get">
+            <input type="submit" value="여행일정등록">
+        </form>
+        
+    <% } else {} %>
+    
+
+</body>
+<script type="text/javascript">
+    
+</script>
+</html>

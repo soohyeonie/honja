@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+  <h3>회원 가입</h3>
+  <form action="/users/sign_up" method="post">
+    <table>
+      <tr>
+        <td>아이디 : </td>
+        <td><input type="text" name="userID" required></td>
+      </tr>
+      <tr>
+        <td>비밀번호 : </td>
+        <td><input type="password" name="password" required></td>
+      </tr>
+      <tr>
+        <td>비밀번호 확인 : </td>
+        <td><input type="password" name="confirm_password" required></td>
+      </tr>
+      <tr>
+        <td>이름 : </td>
+        <td><input type="text" name="name" required></td>
+      </tr>
+      <tr>
+        <td>나이 : </td>
+        <td><input type="number" name="age" required></td>
+      </tr>
+      <tr>
+        <td>성별 : </td>
+        <td>
+            <select name="sex">
+                <option value="남성" selected>남성</option>
+                <option value="여성">여성</option>
+            </select>
+        </td>
+      </tr>
+      <tr>
+        <td>이메일 : </td>
+        <td><input type="text" name="userEmail" required></td>
+      </tr>
+      <tr>
+        <td><input type="submit" value="회원가입"></td>
+      </tr>
+    </table>
+  </form>
+  <form action="/users/login" method="get">
+    <input type="submit" value="돌아가기">
+  </form>
+</body>
+
+<script>
+var password = document.getElementById("password");
+var confirm_password = document.getElementById("confirm_password");
+
+function validatePassword() {
+  if(password.value != confirm_password.value) {
+    confirm_password.setCustomValidity("Passwords Don't Match");
+  } else {
+    confirm_password.setCustomValidity('');
+  }
+}
+password.onchange = validatePassword;
+confirm_password.onkeyup = validatePassword;
+</script>
+</html>

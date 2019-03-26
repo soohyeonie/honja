@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.8.18/jquery-ui.min.js"></script>  
+</head>
+
+
+
+<body>
+
+    <% if(typeof userID !== 'undefined') { %>
+        <%=userID%>님 반갑습니다.
+        <form action="/users/logout" method="get">
+            <input type="submit" value="로그아웃">
+        </form>
+        <form action="/activate/index" method="get">
+            <input type="submit" value="메인페이지">
+        </form>
+        <form action="/activate/findtrip" method="get">
+            <input type="submit" value="동행찾기">
+        </form>
+        <form action="/activate/registertrip" method="post">
+            <table>
+                <tr>
+                    <td>여행날짜 : </td>
+                    <td>
+                        <input type="text" id="startDatepicker" name="startdate" required>~<input type="text" id="endDatepicker" name="enddate" required><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td>지역 : </td>
+                    <td>
+                        <select id="city" name="city">
+                        </select>
+                        <select id="borough" name="borough">
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>코멘트 : </td>
+                    <td>
+                        <input type="text" name="comment" required>
+                    </td>
+                </tr>
+            </table>
+
+            희망 동행자
+            <table>
+                <tr>
+                    <td>나이범위 : </td>
+                    <td>
+                        <input type="number" id="startage" name="startage" value="20" min="20" required>~<input type="number" id="endage" name="endage" value="20" min="20" required>
+                    </td>
+                </tr>
+                <tr>
+                    <td>성별 : </td>
+                    <td>
+                        <select id="sex" name="sex">
+                            <option value="무관">무관</option>
+                            <option value="남성">남성</option>
+                            <option value="여성">여성</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <input type="submit" value="등록">
+        </form>
+    <% } else {} %>    
+
+</body>
+<script type="text/javascript">
+var city = new Array();
+var borough = {};
+$(function() {
+  $( "#startDatepicker" ).datepicker({
+         changeMonth: true, 
+         changeYear: true,
+         nextText: '다음 달',
+         prevText: '이전 달',
+         dateFormat: "yymmdd",
+         changeMonth: true, 
+         dayNames: ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'],
+         dayNamesMin: ['월', '화', '수', '목', '금', '토', '일'], 
+         monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12'],
+         monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+         minDate: 0 
+  });
+});
+$(function() {
+  $( "#endDatepicker" ).datepicker({
+         changeMonth: true, 
+         changeYear: true,
+         nextText: '다음 달',
+         prevText: '이전 달',
+         dateFormat: "yymmdd",
+         changeMonth: true, 
+         dayNames: ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'],
+         dayNamesMin: ['월', '화', '수', '목', '금', '토', '일'], 
+         monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12'],
+         monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+         minDate: 0 
+  });
+});
+$.ajax({
+	type: "GET",    
+	async: false,
+	url: "https://raw.githubusercontent.com/cosmosfarm/korea-administrative-district/master/korea-administrative-district.json",
+	dataType: "json",
+	success: function (response) {
+        datedata = response.data;
+        for(var i=0;i<datedata.length;i++) {
+            var cityvalue = (Object.keys(datedata[i]))[0];
+            city.push(cityvalue);
+            borough[cityvalue]=datedata[i][cityvalue];
+        }
+        var citybox=document.getElementById('city');
+        citybox.innerHTML="";
+        for(var i=0;i<city.length;i++) {
+            var option=document.createElement('option');
+            option.innerHTML=city[i];
+            citybox.appendChild(option);
+            if(i==0) {
+                citybox.options[i].selected=true;
+                var boroughbox = document.getElementById("borough");
+                boroughbox.innerHTML="";
+                option=document.createElement('option');
+                option.innerHTML="전체";
+                boroughbox.appendChild(option);
+                for(var j=0;j<borough[city[i]].length;j++) {
+                    option=document.createElement('option');
+                    option.innerHTML=borough[city[i]][j];
+                    boroughbox.appendChild(option);
+                }
+            }
+        }
+	},
+	error: function (request, status, error) {
+		console.log(error);
+	},
+});
+$('#city').change(function () {
+	var borughdata=borough[$(this).val()];
+    var boroughbox = document.getElementById("borough");
+    boroughbox.innerHTML="";
+    option=document.createElement('option');
+    option.innerHTML="전체";
+    boroughbox.appendChild(option);
+    for(var i=0;i<borughdata.length;i++) {
+        option=document.createElement('option');
+        option.innerHTML=borughdata[i];
+        boroughbox.appendChild(option);
+    }
+});
+
+</script>
+</html>
