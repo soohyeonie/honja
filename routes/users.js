@@ -36,7 +36,7 @@ router.post("/login", function(req,res,next){
       if(dbPassword === hashPassword){
           console.log("비밀번호 일치");
           res.cookie("activate", body.userID , {
-            expires: new Date(Date.now() + 900000),
+            expires: new Date(Date.now() + 9000000),
             httpOnly: true
           });
           //res.render("activate/index");

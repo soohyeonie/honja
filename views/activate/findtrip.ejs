@@ -17,13 +17,13 @@
         <form action="/users/logout" method="get">
             <input type="submit" value="로그아웃">
         </form>
-        <form action="/activate/index" method="get">
+        <form action="/activate" method="get">
             <input type="submit" value="메인페이지">
         </form>
         <form action="/activate/registertrip" method="get">
             <input type="submit" value="여행일정등록">
         </form>
-        <form action="/activate/findtrip" method="post">
+        <form action="/activate/findtrip" method="get">
             <table>
                 <tr>
                     <td>여행날짜 : </td>
@@ -63,8 +63,10 @@
                 </tr>
             </table>
         </form>
-    <table>
+    <table id="triplist">
         <tr>
+            <td>번호</td>
+            <td>아이디</td>
             <td>도시</td>
             <td>시/군/구</td>
             <td>시작날짜</td>
@@ -73,9 +75,11 @@
             <td>성별</td>
             <td>코멘트</td>
         </tr>
-    <% if(typeof schedules!=='undefined') { %>
-        <% for(let schedule of schedules) { %>
-            <tr>
+        <% if(typeof schedules!=='undefined') { %>
+            <% for(let schedule of schedules) { %>
+                <tr>
+                <td><%= schedule.id %> </td>
+                <td><%= schedule.userID%></td>
                 <td><%= schedule.city %></td>
                 <td><%= schedule.borough %></td>
                 <td><%= schedule.startdate %></td>
@@ -83,12 +87,12 @@
                 <td><%= schedule.age %></td>
                 <td><%= schedule.sex %></td>
                 <td><%= schedule.comment %></td>
-                <td><button type="button">채팅요청</button></td>
+                <td><button class="requestchat">채팅요청</button></td>
             </tr>
             <% } %>
         <%} %>
-    <% } else {} %>  
-    </table>  
+    </table>
+    <% } else {} %>   
 
 </body>
 <script type="text/javascript">
@@ -190,5 +194,40 @@ $("#checksex").click(function(){
         $( "#sex" ).prop( "disabled", false );
     }
 });
+function sendAjax(url,data) {
+    var stringifydata = JSON.stringify(data);
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.setRequestHeader('Content-type', "application/json");
+    xhr.send(stringifydata);
+        
+    xhr.addEventListener('load', function(){
+        console.log(xhr.responseText);
+    });
+}
+
+$('#triplist tr td .requestchat').click(function(){
+    var arr = $(this).context.parentElement.parentElement.cells;
+    var pnum = arr[0].innerHTML;
+    var userID = arr[1].innerHTML;
+    var city = arr[2].innerHTML;
+    var borough = arr[3].innerHTML;
+    var startdate = arr[4].innerHTML;
+    var enddate = arr[5].innerHTML;
+    var comment = arr[8].innerHTML
+    console.log(arr);
+    var requestinfo = {
+        'pnum' : pnum,
+        'userID' : userID,
+        'city': city,
+        'borough' : borough,
+        'startdate' : startdate,
+        'enddate' : enddate,
+        'comment' : comment
+    };
+    sendAjax('findtrip/requestchat',requestinfo);
+    location.reload();
+})
+
 </script>
 </html>

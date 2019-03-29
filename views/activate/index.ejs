@@ -4,6 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.8.18/jquery-ui.min.js"></script>
+
 </head>
 
 <body>
@@ -19,12 +24,202 @@
         <form action="/activate/registertrip" method="get">
             <input type="submit" value="여행일정등록">
         </form>
-        
+        <div>
+            
+            동행채팅목록
+            <table id="chatlist">
+                <tr>
+                    <td>채팅방번호</td>
+                    <td>채팅방제목</td>
+                    <td>상대아이디</td>
+                </tr>
+                <% if(typeof chatlist!=='undefined') { %>
+                    <% for(let chat of chatlist) { %>
+                        <tr>
+                            <td><%= chat.roomnumber%></td>
+                            <td><%= chat.roomname%></td>
+                            <% if(userID==chat.user1) { %>
+                                <td><%= chat.user2 %></td>
+                            <% } else { %>
+                                <td><%= chat.user1 %></td>
+                            <% } %>
+                            <td><button class="entchat">입장</button></td>
+                            <td><button class="delchat">삭제</button></td>
+                        </tr>
+                    <% } %>
+                <%} %>
+            </table>
+            
+        </div>
+        <div>
+            
+            채팅요청수신함
+            <table id="requestlist">
+                <tr>
+                    <td>번호</td>
+                    <td>아이디</td>
+                    <td>나이</td>
+                    <td>성별</td>
+                    <td>도시</td>
+                    <td>시군구</td>
+                    <td>시작날짜</td>
+                    <td>종료날짜</td>
+                </tr>
+                <% if(typeof requestlist!=='undefined') { %>
+                    <% for(let request of requestlist) { %>
+                        <tr>
+                            <td><%= request.pnum%></td>
+                            <td><%= request.senderuserID%></td>
+                            <td><%= request.senderage %></td>
+                            <td><%= request.sendersex %></td>
+                            <td><%= request.city%></td>
+                            <td><%= request.borough%></td>
+                            <td><%= request.startdate%></td>
+                            <td><%= request.enddate%></td>
+                            <td><button class="accept">수락</button></td>
+                            <td><button class="deny">거절</button></td>
+                        </tr>
+                    <% } %>
+                <%} %>
+            </table>
+        </div>
+        <div>
+            
+                채팅요청발신함
+                <table id="myreqlist">
+                    <tr>
+                        <td>번호</td>
+                        <td>아이디</td>
+                        <td>도시</td>
+                        <td>시군구</td>
+                        <td>시작날짜</td>
+                        <td>종료날짜</td>
+                    </tr>
+                    <% if(typeof myrequestlist!=='undefined') { %>
+                        <% for(let myrequest of myrequestlist) { %>
+                            <tr>
+                                <td><%= myrequest.pnum%></td>
+                                <td><%= myrequest.receiveruserID%></td>
+                                <td><%= myrequest.city%></td>
+                                <td><%= myrequest.borough%></td>
+                                <td><%= myrequest.startdate%></td>
+                                <td><%= myrequest.enddate%></td>
+                                <td><button class="cancel">취소</button></td>
+                            </tr>
+                        <% } %>
+                    <%} %>
+                </table>
+            </div>
+        <div>
+            동행등록목록
+            <table id="triplist">
+                <tr>
+                    <td>번호</td>
+                    <td>도시</td>
+                    <td>시/군/구</td>
+                    <td>시작날짜</td>
+                    <td>종료날짜</td>
+                    <td>희망나이</td>
+                    <td>희망성별</td>
+                    <td>코멘트</td>
+                </tr>
+                <% if(typeof schedules!=='undefined') { %>
+                    <% for(let schedule of schedules) { %>
+                        <tr>
+                        <td><%= schedule.id %></td>
+                        <td><%= schedule.city %></td>
+                        <td><%= schedule.borough %></td>
+                        <td><%= schedule.startdate %></td>
+                        <td><%= schedule.enddate %></td>
+                        <td><%= schedule.targetstartage %>~<%= schedule.targetendage %></td>
+                        <td><%= schedule.targetsex %></td>
+                        <td><%= schedule.comment %></td>
+                        <td><button class="delchat">삭제</button></td>
+                    </tr>
+                    <% } %>
+                <%} %>
+            </table>
+        </div>
     <% } else {} %>
     
 
 </body>
 <script type="text/javascript">
-    
+function sendAjax(url,data) {
+    var stringifydata = JSON.stringify(data);
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+        window.location = "/activate";
+    }
+    }
+    xhr.open('POST', url);
+    xhr.setRequestHeader('Content-type', "application/json");
+    xhr.send(stringifydata);
+        
+    xhr.addEventListener('load', function(){
+        console.log(xhr.responseText);
+    });
+}
+$('#requestlist tr td .accept').click(function(){
+    var arr = $(this).context.parentElement.parentElement.cells;
+    console.log(arr[0].innerHTML);
+    var requestinfo = {
+        'pnum' : arr[0].innerHTML,
+    };
+    sendAjax('activate/acceptchat',requestinfo);
+})
+$('#requestlist tr td .deny').click(function(){
+    var arr = $(this).context.parentElement.parentElement.cells;
+    console.log(arr[0].innerHTML);
+    var requestinfo = {
+        'pnum' : arr[0].innerHTML,
+    };
+    sendAjax('activate/denychat',requestinfo);
+})
+var wins = {};
+$('#chatlist tr td .entchat').click(function(){
+    var arr = $(this).context.parentElement.parentElement.cells;
+    console.log(arr[0].innerHTML);
+    /*
+    var requestinfo = {
+        'id' : arr[0].innerHTML,
+    };
+*/  
+    var url= arr[0].innerHTML;
+    if(typeof wins[url] === 'undefined' || wins[url].closed) {
+        wins[url]=window.open("chat?id="+arr[0].innerHTML, 'hi', "width=800, height=700, toolbar=no, menubar=no, scrollbars=no, resizable=yes" );
+    }
+ 
+    //sendAjax('chat',requestinfo);
+})
+
+$('#chatlist tr td .delchat').click(function(){
+    var arr = $(this).context.parentElement.parentElement.cells;
+    console.log(arr[0].innerHTML);
+    var requestinfo = {
+        'pnum' : arr[0].innerHTML,
+    };
+    sendAjax('activate/delchat',requestinfo);
+})
+
+$('#triplist tr td .delchat').click(function(){
+    var arr = $(this).context.parentElement.parentElement.cells;
+    console.log(arr[0].innerHTML);
+    var requestinfo = {
+        'id' : arr[0].innerHTML,
+    };
+    sendAjax('activate/delregchat',requestinfo);
+})
+
+$('#myreqlist tr td .cancel').click(function(){
+    var arr = $(this).context.parentElement.parentElement.cells;
+    console.log(arr[0].innerHTML);
+    var requestinfo = {
+        'pnum' : arr[0].innerHTML,
+    };
+    sendAjax('activate/cancelchat',requestinfo);
+})
+
 </script>
 </html>
